@@ -6,10 +6,10 @@ const pacote = require('pacote')
 const cacache = require('cacache')
 const { callLimit: promiseCallLimit } = require('promise-call-limit')
 const realpath = require('../../lib/realpath.js')
-const { resolve, dirname } = require('path')
+const { resolve, dirname } = require('node:path')
 const treeCheck = require('../tree-check.js')
 const { readdirScoped } = require('@npmcli/fs')
-const { lstat, readlink } = require('fs/promises')
+const { lstat, readlink } = require('node:fs/promises')
 const { depth } = require('treeverse')
 const { log, time } = require('proc-log')
 const { redact } = require('@npmcli/redact')
@@ -195,7 +195,10 @@ module.exports = cls => class IdealTreeBuilder extends cls {
     for (const node of this.idealTree.inventory.values()) {
       if (!node.optional) {
         try {
-          checkEngine(node.package, npmVersion, nodeVersion, this.options.force)
+          // if devEngines is present in the root node we ignore the engines check
+          if (!(node.isRoot && node.package.devEngines)) {
+            checkEngine(node.package, npmVersion, nodeVersion, this.options.force)
+          }
         } catch (err) {
           if (engineStrict) {
             throw err

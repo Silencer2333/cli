@@ -1,6 +1,6 @@
 const t = require('tap')
-const { readdirSync } = require('fs')
-const { dirname } = require('path')
+const { readdirSync } = require('node:fs')
+const { dirname } = require('node:path')
 const { load: loadMockNpm } = require('../../fixtures/mock-npm.js')
 const tmock = require('../../fixtures/tmock.js')
 const validateEngines = require('../../../lib/cli/validate-engines.js')
@@ -35,16 +35,16 @@ const cliMock = async (t, opts) => {
   }
 }
 
-t.test('print the version, and treat npm_g as npm -g', async t => {
+t.test('print the version ', async t => {
   const { logs, cli, Npm, outputs, exitHandlerCalled } = await cliMock(t, {
-    globals: { 'process.argv': ['node', 'npm_g', 'root'] },
+    globals: { 'process.argv': ['node', 'npm', 'root'] },
   })
   await cli(process)
 
-  t.strictSame(process.argv, ['node', 'npm', '-g', 'root'], 'system process.argv was rewritten')
+  t.strictSame(process.argv, ['node', 'npm', 'root'], 'system process.argv was rewritten')
   t.strictSame(logs.verbose.byTitle('cli'), ['cli node npm'])
   t.strictSame(logs.verbose.byTitle('title'), ['title npm root'])
-  t.match(logs.verbose.byTitle('argv'), ['argv "--global" "root"'])
+  t.match(logs.verbose.byTitle('argv'), ['argv "root"'])
   t.strictSame(logs.info, [`using npm@${Npm.version}`, `using node@${process.version}`])
   t.equal(outputs.length, 1)
   t.match(outputs[0], dirname(process.cwd()))

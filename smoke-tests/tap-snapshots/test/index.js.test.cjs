@@ -24,12 +24,12 @@ All commands:
     access, adduser, audit, bugs, cache, ci, completion,
     config, dedupe, deprecate, diff, dist-tag, docs, doctor,
     edit, exec, explain, explore, find-dupes, fund, get, help,
-    help-search, hook, init, install, install-ci-test,
-    install-test, link, ll, login, logout, ls, org, outdated,
-    owner, pack, ping, pkg, prefix, profile, prune, publish,
-    query, rebuild, repo, restart, root, run-script, sbom,
-    search, set, shrinkwrap, star, stars, start, stop, team,
-    test, token, uninstall, unpublish, unstar, update, version,
+    help-search, init, install, install-ci-test, install-test,
+    link, ll, login, logout, ls, org, outdated, owner, pack,
+    ping, pkg, prefix, profile, prune, publish, query, rebuild,
+    repo, restart, root, run-script, sbom, search, set,
+    shrinkwrap, star, stars, start, stop, team, test, token,
+    undeprecate, uninstall, unpublish, unstar, update, version,
     view, whoami
 
 Specify configs in the ini-formatted file:
@@ -110,6 +110,7 @@ Wrote to {NPM}/{TESTDIR}/project/package.json:
 {
   "name": "project",
   "version": "1.0.0",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo /"Error: no test specified/" && exit 1"
@@ -117,7 +118,7 @@ Wrote to {NPM}/{TESTDIR}/project/package.json:
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "type": "commonjs"
 }
 `
 
@@ -172,6 +173,7 @@ Object {
   "scripts": Object {
     "test": "echo /"Error: no test specified/" && exit 1",
   },
+  "type": "commonjs",
   "version": "1.0.0",
 }
 `
@@ -224,6 +226,7 @@ Object {
   "scripts": Object {
     "test": "echo /"Error: no test specified/" && exit 1",
   },
+  "type": "commonjs",
   "version": "1.0.0",
 }
 `
@@ -254,6 +257,7 @@ Object {
     "hello": "echo Hello",
     "test": "echo /"Error: no test specified/" && exit 1",
   },
+  "type": "commonjs",
   "version": "1.0.0",
 }
 `
@@ -278,6 +282,7 @@ Object {
       "LC_ALL=sk",
     ],
   },
+  "type": "commonjs",
   "version": "1.0.0",
 }
 `
@@ -298,6 +303,7 @@ exports[`test/index.js TAP basic npm pkg > should print package.json contents 1`
 {
   "name": "project",
   "version": "1.0.0",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo /"Error: no test specified/" && exit 1",
@@ -306,7 +312,7 @@ exports[`test/index.js TAP basic npm pkg > should print package.json contents 1`
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "type": "commonjs",
   "dependencies": {
     "abbrev": "^1.0.4"
   },
@@ -336,6 +342,7 @@ Object {
     "hello": "echo Hello",
     "test": "echo /"Error: no test specified/" && exit 1",
   },
+  "type": "commonjs",
   "version": "1.0.0",
 }
 `
@@ -393,6 +400,7 @@ Object {
     "hello": "echo Hello",
     "test": "echo /"Error: no test specified/" && exit 1",
   },
+  "type": "commonjs",
   "version": "1.0.0",
 }
 `
@@ -453,6 +461,7 @@ Object {
     "hello": "echo Hello",
     "test": "echo /"Error: no test specified/" && exit 1",
   },
+  "type": "commonjs",
   "version": "1.0.0",
 }
 `
