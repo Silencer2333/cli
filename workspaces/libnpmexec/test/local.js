@@ -1,7 +1,7 @@
 const { log } = require('proc-log')
-const { resolve } = require('path')
+const { resolve } = require('node:path')
 const t = require('tap')
-const fs = require('fs/promises')
+const fs = require('node:fs/promises')
 const { resetSeen: resetSeenLinks } = require('bin-links')
 const { setup, createPkg, merge } = require('./fixtures/setup.js')
 
@@ -84,7 +84,7 @@ t.test('bin in local pkg', async t => {
   await binLinks(existingPkg.pkg)
 
   t.match(await fs.readdir(resolve(path, 'node_modules', '.bin')), ['conflicting-bin'])
-  await exec({ localBin, args: ['conflicting-bin'] })
+  await exec({ pkgPath: path, localBin, args: ['conflicting-bin'] })
   // local bin was called for conflicting-bin
   t.match(await readOutput('conflicting-bin'), {
     value: 'LOCAL PKG',

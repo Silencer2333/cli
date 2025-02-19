@@ -46,7 +46,6 @@ t.cleanSnapshot = (path) => cleanDate(cleanCwd(path))
 mockGlobals(t, {
   process: Object.assign(new EventEmitter(), {
     // these are process properties that are needed in the running code and tests
-    // eslint-disable-next-line max-len
     ...pick(process, 'version', 'execPath', 'stdout', 'stderr', 'stdin', 'cwd', 'chdir', 'env', 'umask'),
     pid: 123456,
     argv: ['/node', ...process.argv.slice(1)],
@@ -194,15 +193,16 @@ t.test('exit handler never called', async t => {
     const { logs, errors } = await mockExitHandler(t, {
       config: { loglevel: 'silent' },
     })
-    process.emit('exit', 1)
+    process.emit('exit', 0)
     t.strictSame(logs, [])
     t.strictSame(errors(), [''], 'one empty string')
+    t.equal(process.exitCode, 1)
   })
 
   t.test('loglevel notice', async (t) => {
     const { logs, errors } = await mockExitHandler(t)
-    process.emit('exit', 1)
-    t.equal(process.exitCode, 1)
+    process.emit('exit', 2)
+    t.equal(process.exitCode, 2)
     t.match(logs.error, [
       'Exit handler never called!',
       /error with npm itself/,
@@ -276,8 +276,7 @@ t.test('merges output buffers errors with --json', async (t) => {
   })
 
   output.buffer({ output_data: 1 })
-  output.buffer(JSON.stringify({ more_data: 2 }))
-  output.buffer('not json, will be ignored')
+  output.buffer({ more_data: 2 })
 
   await exitHandler()
 

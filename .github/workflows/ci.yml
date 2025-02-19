@@ -76,20 +76,17 @@ jobs:
             os: windows-latest
             shell: cmd
         node-version:
-          - 18.17.0
-          - 18.x
-          - 20.5.0
+          - 20.17.0
           - 20.x
+          - 22.9.0
           - 22.x
         exclude:
           - platform: { name: macOS, os: macos-13, shell: bash }
-            node-version: 18.17.0
-          - platform: { name: macOS, os: macos-13, shell: bash }
-            node-version: 18.x
-          - platform: { name: macOS, os: macos-13, shell: bash }
-            node-version: 20.5.0
+            node-version: 20.17.0
           - platform: { name: macOS, os: macos-13, shell: bash }
             node-version: 20.x
+          - platform: { name: macOS, os: macos-13, shell: bash }
+            node-version: 22.9.0
           - platform: { name: macOS, os: macos-13, shell: bash }
             node-version: 22.x
     runs-on: ${{ matrix.platform.os }}
@@ -150,6 +147,10 @@ jobs:
         run: node . run licenses
 
   smoke-tests:
+    # This cant be tested on Windows because our node_modules directory	
+    # checks in symlinks which are not supported there. This should be	
+    # fixed somehow, because this means some forms of local development	
+    # are likely broken on Windows as well.	
     name: Smoke Tests
     if: github.repository_owner == 'npm'
     runs-on: ubuntu-latest
@@ -159,10 +160,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
       - name: Setup Git User
         run: |
           git config --global user.email "npm-cli+bot@github.com"
           git config --global user.name "npm CLI robot"
+      - name: Create Check
+        id: create-check
+        if: ${{ inputs.check-sha }}
+        uses: ./.github/actions/create-check
+        with:
+          name: "Smoke Tests"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sha: ${{ inputs.check-sha }}
       - name: Setup Node
         uses: actions/setup-node@v4
         id: node
@@ -174,10 +185,64 @@ jobs:
         run: node scripts/git-dirty.js
       - name: Reset Deps
         run: node scripts/resetdeps.js
-      - name: Run Smoke Tests
-        run: node . test -w smoke-tests --ignore-scripts
+      - name: Smoke Tests
+        run: ./scripts/smoke-tests.sh
+      - name: Conclude Check
+        uses: LouisBrunner/checks-action@v1.6.0
+        if: steps.create-check.outputs.check-id && always()
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          conclusion: ${{ job.status }}
+          check_id: ${{ steps.create-check.outputs.check-id }}
+
+  publish-dryrun:
+    # This cant be tested on Windows because our node_modules directory	
+    # checks in symlinks which are not supported there. This should be	
+    # fixed somehow, because this means some forms of local development	
+    # are likely broken on Windows as well.	
+    name: Publish Dry-Run
+    if: github.repository_owner == 'npm'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - name: Setup Git User
+        run: |
+          git config --global user.email "npm-cli+bot@github.com"
+          git config --global user.name "npm CLI robot"
+      - name: Create Check
+        id: create-check
+        if: ${{ inputs.check-sha }}
+        uses: ./.github/actions/create-check
+        with:
+          name: "Publish Dry-Run"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sha: ${{ inputs.check-sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        id: node
+        with:
+          node-version: 22.x
+          check-latest: contains('22.x', '.x')
+          cache: npm
       - name: Check Git Status
         run: node scripts/git-dirty.js
+      - name: Reset Deps
+        run: node scripts/resetdeps.js
+      - name: Publish Dry-Run
+        run: node ./scripts/publish.js --pack-destination=$RUNNER_TEMP --smoke-publish=true
+      - name: Conclude Check
+        uses: LouisBrunner/checks-action@v1.6.0
+        if: steps.create-check.outputs.check-id && always()
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          conclusion: ${{ job.status }}
+          check_id: ${{ steps.create-check.outputs.check-id }}
 
   windows-shims:
     name: Windows Shims Tests
